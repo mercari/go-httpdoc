@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package httpdoc;
+
+message UserProtoRequest {
+  int32 id = 1;
+  string name = 2;
+}
+
+message UserProtoResponse {
+  message Setting {
+    string email = 1;
+  }
+  
+  int32 id = 1;
+  string name = 2;
+  bool active = 3;
+  Setting setting =4;
+}
