@@ -5,5 +5,5 @@
 // to validate values are equal to what you expect with annotation (e.g., you can add a description for headers,
 // params or response fields).
 //
-// See example document output, https://github.com/kouzoh/go-httpdoc/blob/master/_example/doc/validate.md
+// See example document output, https://github.com/mercari/go-httpdoc/blob/master/_example/doc/validate.md
 package httpdoc
