@@ -1,0 +1,18 @@
+language: go
+go:
+  - 1.8.3
+  - tip
+
+os:
+  - linux
+  - osx
+
+sudo: false
+
+install:
+  - go get -v ./...
+
+script:
+  - go vet
+  - go test -v 
+  
