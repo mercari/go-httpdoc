@@ -30,13 +30,13 @@ type Document struct {
 	// If you want to exclude header only in specific endpoint, then use `RecordOption.ExcludeHeaders`.
 	ExcludeHeaders []string
 
-	// Entries stores all recorded resutls by Record middleware. Normally, you don't need to modify this.
+	// Entries stores all recorded results by Record middleware. Normally, you don't need to modify this.
 	// This is exported just for templating.
 	Entries []Entry
 }
 
 // Entry is recorded results by Record middleware. Normally, you don't need to modify this.
-// All filelds are exported just for templating.
+// All fields are exported just for templating.
 type Entry struct {
 	// Description is description of endpoint.
 	Description string
@@ -102,7 +102,7 @@ type ProtoBufferOption struct {
 }
 
 // Data represents a request or response parameter value. Normally, you don't need to modify this.
-// All filelds are exported just for templating.
+// All fields are exported just for templating.
 type Data struct {
 	// Name is header or params, field name.
 	Name string
@@ -130,7 +130,7 @@ func Record(next http.Handler, document *Document, opt *RecordOption) http.Handl
 		}
 
 		// Create a tee reader and stores request body.
-		// Becasue of this, handler must read request body to record.
+		// Because of this, handler must read request body to record.
 		var requestBody bytes.Buffer
 		r.Body = ioutil.NopCloser(io.TeeReader(r.Body, &requestBody))
 

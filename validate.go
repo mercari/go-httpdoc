@@ -61,7 +61,7 @@ type record struct {
 	responseBody       []byte
 }
 
-// TestCase is test case validator uses. Valiator inspects and extract request & response value based on
+// TestCase is test case validator uses. Validator inspects and extract request & response value based on
 // Target (e.g, when testing request params, target is parameter name. when testing response
 // body, target is filed name) and asserts with Expected value.
 //
@@ -170,7 +170,7 @@ func (v *Validator) RequestBody(t *testing.T, cases []TestCase, request interfac
 	v.validateFields(t, cases, request, &v.requestFields)
 }
 
-// ResponseBody validates response body's fileds are expected or not. The response body
+// ResponseBody validates response body's fields are expected or not. The response body
 // is unmarshaled to the given struct. To extract a filed to validate, this uses dot-seprated
 // expression in TestCase.Target. For example, if you want to access `Email` value in the
 // following struct use `Setting.Name` in Target.
