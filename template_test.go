@@ -79,3 +79,42 @@ func TestFuncMap(t *testing.T) {
 		t.Fatalf("got %q, want %q", got, want)
 	}
 }
+
+func TestTemplateGenerate_InvalidPath(t *testing.T) {
+	resetF := setEnv(t, EnvHTTPDoc, "1")
+	defer resetF()
+
+	doc := &Document{}
+	if err := doc.Generate("/tmp/httpdoc/no-such-file-or-directory"); err == nil {
+		t.Fatalf("expect to be failed")
+	}
+}
+
+func TestTemplateGenerate_InvalidTmpl(t *testing.T) {
+	doc := &Document{
+		tmpl: "no-such-template",
+	}
+	if err := doc.generate(ioutil.Discard); err == nil {
+		t.Fatalf("expect to be failed")
+	}
+}
+
+func TestTmplExecute_InvalidTemplate(t *testing.T) {
+	cases := []struct {
+		text string
+	}{
+		{
+			`{{ .Name }`,
+		},
+		{
+			`{{ .Name.NoSuchField }}`,
+		},
+	}
+
+	doc := &Document{}
+	for _, tc := range cases {
+		if err := doc.tmplExecute(ioutil.Discard, tc.text); err == nil {
+			t.Fatalf("expect to be failed")
+		}
+	}
+}

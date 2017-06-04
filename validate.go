@@ -17,8 +17,12 @@ var (
 
 	defaultAssertFunc = func(t *testing.T, expected, actual interface{}, desc string) {
 		if !reflect.DeepEqual(expected, actual) {
-			t.Fatalf("%s: got %#v(%T), want %#v(%T)", desc, actual, actual, expected, expected)
+			tFatalf(t, "%s: got %#v(%T), want %#v(%T)", desc, actual, actual, expected, expected)
 		}
+	}
+
+	defaultFatalFunc = func(t *testing.T, format string, args ...interface{}) {
+		t.Fatalf(format, args...)
 	}
 
 	protoUnmarshalFunc = func(data []byte, v interface{}) error {
@@ -30,8 +34,11 @@ var (
 	}
 )
 
+var tFatalf fatalFunc = defaultFatalFunc
+
 type (
 	assertFunc    func(t *testing.T, expected, actual interface{}, desc string)
+	fatalFunc     func(t *testing.T, format string, args ...interface{})
 	unmarshalFunc func(data []byte, v interface{}) error
 )
 
@@ -118,7 +125,8 @@ func (v *Validator) RequestHeaders(t *testing.T, cases []TestCase) {
 		if actual == "" {
 			h, ok := v.record.requestHeaders[tc.Target]
 			if !ok || len(h) == 0 {
-				t.Fatalf("request header %q is not found", tc.Target)
+				tFatalf(t, "request header %q is not found", tc.Target)
+				return
 			}
 			actual = h[0]
 		}
@@ -141,7 +149,8 @@ func (v *Validator) ResponseHeaders(t *testing.T, cases []TestCase) {
 		if actual == "" {
 			h, ok := v.record.responseHeaders[tc.Target]
 			if !ok || len(h) == 0 {
-				t.Fatalf("request header %q is not found", tc.Target)
+				tFatalf(t, "request header %q is not found", tc.Target)
+				return
 			}
 			actual = h[0]
 		}
@@ -165,7 +174,8 @@ func (v *Validator) ResponseHeaders(t *testing.T, cases []TestCase) {
 func (v *Validator) RequestBody(t *testing.T, cases []TestCase, request interface{}) {
 	// Unmarshal request body into the given struct
 	if err := v.unmarshalFunc(v.record.requestBody, request); err != nil {
-		t.Fatalf("Failed to unmarshal request body: %s", err)
+		tFatalf(t, "Failed to unmarshal request body: %s", err)
+		return
 	}
 	v.validateFields(t, cases, request, &v.requestFields)
 }
@@ -186,7 +196,7 @@ func (v *Validator) RequestBody(t *testing.T, cases []TestCase, request interfac
 func (v *Validator) ResponseBody(t *testing.T, cases []TestCase, response interface{}) {
 	// Unmarshal request body into the given struct
 	if err := v.unmarshalFunc(v.record.responseBody, response); err != nil {
-		t.Fatalf("Failed to unmarshal response body: %s", err)
+		tFatalf(t, "Failed to unmarshal response body: %s", err)
 	}
 	v.validateFields(t, cases, response, &v.responseFields)
 }
