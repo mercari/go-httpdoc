@@ -3,7 +3,7 @@
 // tmpl/doc.md.tmpl
 // DO NOT EDIT!
 
-package httpdoc
+package static
 
 import (
 	"bytes"
@@ -83,7 +83,7 @@ func tmplDocMdTmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "tmpl/doc.md.tmpl", size: 1635, mode: os.FileMode(420), modTime: time.Unix(1496080993, 0)}
+	info := bindataFileInfo{name: "tmpl/doc.md.tmpl", size: 1635, mode: os.FileMode(420), modTime: time.Unix(1496559129, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

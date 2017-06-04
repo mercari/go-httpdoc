@@ -1,0 +1,3 @@
+package static
+
+//go:generate go-bindata -pkg=static ./tmpl/...

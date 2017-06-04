@@ -1,7 +1,5 @@
 package httpdoc
 
-//go:generate go-bindata -pkg=httpdoc ./tmpl/...
-
 import (
 	"bytes"
 	"encoding/json"

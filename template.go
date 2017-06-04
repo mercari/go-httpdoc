@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/mercari/go-httpdoc/static"
 )
 
 // Generate writes documentation into the given file. Generation is skipped
@@ -31,7 +33,7 @@ func (d *Document) Generate(path string) error {
 }
 
 func (d *Document) generate(w io.Writer) error {
-	buf, err := Asset("tmpl/doc.md.tmpl")
+	buf, err := static.Asset("tmpl/doc.md.tmpl")
 	if err != nil {
 		return err
 	}
