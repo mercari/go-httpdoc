@@ -10,6 +10,9 @@ import (
 	"github.com/mercari/go-httpdoc/static"
 )
 
+// defaultTmpl is default template file to use.
+var defaultTmpl = "tmpl/doc.md.tmpl"
+
 // Generate writes documentation into the given file. Generation is skipped
 // if EnvHTTPDoc is empty. If directory does not exist or any, it returns error.
 func (d *Document) Generate(path string) error {
@@ -19,11 +22,7 @@ func (d *Document) Generate(path string) error {
 		return nil
 	}
 
-	path, err := filepath.Abs(path)
-	if err != nil {
-		return err
-	}
-
+	path, _ = filepath.Abs(path)
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -33,12 +32,20 @@ func (d *Document) Generate(path string) error {
 }
 
 func (d *Document) generate(w io.Writer) error {
-	buf, err := static.Asset("tmpl/doc.md.tmpl")
+	if d.tmpl == "" {
+		d.tmpl = defaultTmpl
+	}
+
+	buf, err := static.Asset(d.tmpl)
 	if err != nil {
 		return err
 	}
 
-	tmpl, err := template.New("httpdoc").Funcs(funcMap()).Parse(string(buf))
+	return d.tmplExecute(w, string(buf))
+}
+
+func (d *Document) tmplExecute(w io.Writer, text string) error {
+	tmpl, err := template.New("httpdoc").Funcs(funcMap()).Parse(text)
 	if err != nil {
 		return err
 	}

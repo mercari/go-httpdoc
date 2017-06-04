@@ -1,7 +1,11 @@
 package httpdoc
 
 import (
+	"bytes"
+	"fmt"
+	"io"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
@@ -32,6 +36,12 @@ func testAssertWithCount(fails *int) assertFunc {
 		if !reflect.DeepEqual(expected, actual) {
 			*fails++
 		}
+	}
+}
+
+func fprintFatalFunc(w io.Writer) fatalFunc {
+	return func(t *testing.T, format string, args ...interface{}) {
+		fmt.Fprintf(w, format, args...)
 	}
 }
 
@@ -100,6 +110,16 @@ func TestValidator_RequestHeaders(t *testing.T) {
 	if want := 3; got != want {
 		t.Fatalf("expect valiate fails %d, got %d", want, got)
 	}
+
+	var buf bytes.Buffer
+	tFatalf = fprintFatalFunc(&buf)
+	validator.RequestHeaders(t, []TestCase{
+		{"Not-Found", []string{""}, ""},
+	})
+
+	if got, want := buf.String(), "not found"; !strings.Contains(got, want) {
+		t.Fatalf("expect %q to contain %q", got, want)
+	}
 }
 
 func TestValidator_ResponseHeaders(t *testing.T) {
@@ -120,6 +140,16 @@ func TestValidator_ResponseHeaders(t *testing.T) {
 	})
 	if want := 1; got != want {
 		t.Fatalf("expect valiate fails %d, got %d", want, got)
+	}
+
+	var buf bytes.Buffer
+	tFatalf = fprintFatalFunc(&buf)
+	validator.ResponseHeaders(t, []TestCase{
+		{"Not-Found", []string{""}, ""},
+	})
+
+	if got, want := buf.String(), "not found"; !strings.Contains(got, want) {
+		t.Fatalf("expect %q to contain %q", got, want)
 	}
 }
 
@@ -147,6 +177,13 @@ func TestValidator_RequestBody(t *testing.T) {
 
 	if want := 3; got != want {
 		t.Fatalf("expect valiate fails %d, got %d", want, got)
+	}
+
+	var buf bytes.Buffer
+	tFatalf = fprintFatalFunc(&buf)
+	validator.RequestBody(t, []TestCase{}, struct{}{})
+	if got, want := buf.String(), "Failed to unmarshal request"; !strings.Contains(got, want) {
+		t.Fatalf("expect %q to contain %q", got, want)
 	}
 }
 
@@ -184,6 +221,13 @@ func TestValidator_ResponseBody(t *testing.T) {
 
 	if want := 5; got != want {
 		t.Fatalf("expect valiate fails %d, got %d", want, got)
+	}
+
+	var buf bytes.Buffer
+	tFatalf = fprintFatalFunc(&buf)
+	validator.ResponseBody(t, []TestCase{}, struct{}{})
+	if got, want := buf.String(), "Failed to unmarshal response"; !strings.Contains(got, want) {
+		t.Fatalf("expect %q to contain %q", got, want)
 	}
 }
 
@@ -280,4 +324,14 @@ func TestUnmarshallerFunc(t *testing.T) {
 	if err := unmarshalFunc([]byte(""), &User{}); err == nil {
 		t.Fatal("expect to be failed")
 	}
+}
+
+func TestAssertFunc(t *testing.T) {
+	var buf bytes.Buffer
+	tFatalf = fprintFatalFunc(&buf)
+	defaultAssertFunc(t, 1, 2, "test-assert")
+	if got, want := buf.String(), "test-assert: got 2(int), want 1(int)"; !strings.Contains(got, want) {
+		t.Fatalf("expect %q to contain %q", got, want)
+	}
+
 }

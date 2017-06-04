@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sort"
 
 	"github.com/golang/protobuf/proto"
@@ -31,6 +32,11 @@ type Document struct {
 	// Entries stores all recorded results by Record middleware. Normally, you don't need to modify this.
 	// This is exported just for templating.
 	Entries []Entry
+
+	// tmpl is template file to use. Currently this is only static/tmpl/doc.md.tmpl
+	tmpl string
+
+	logger *log.Logger
 }
 
 // Entry is recorded results by Record middleware. Normally, you don't need to modify this.
@@ -121,6 +127,10 @@ func Record(next http.Handler, document *Document, opt *RecordOption) http.Handl
 		opt = &RecordOption{}
 	}
 
+	if document.logger == nil {
+		document.logger = log.New(os.Stderr, "", log.LstdFlags)
+	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Create a new responseWriter it captures status code and response body.
 		rw := responseWriter{
@@ -174,35 +184,25 @@ func Record(next http.Handler, document *Document, opt *RecordOption) http.Handl
 		if opt.WithProtoBuffer != nil {
 			// FIXME(tcnksm): Want to use jsonpb but sometimes panic happens while marshalling....
 			if unmarshaler := opt.WithProtoBuffer.RequestUnmarshaler; unmarshaler != nil {
-				err := unmarshaler.Unmarshal(requestBody.Bytes())
-				if err != nil {
-					log.Printf("[ERROR] httpdoc: Failed to unmarshal %#v: %s", unmarshaler, err)
-				} else {
-					var buf bytes.Buffer
-					encoder := json.NewEncoder(&buf)
-					encoder.SetIndent("", "  ")
-					if err := encoder.Encode(unmarshaler); err != nil {
-						log.Printf("[ERROR] httpdoc: Failed to encode %#v to json: %s", unmarshaler, err)
-					} else {
-						requestExample = buf.String()
-					}
-				}
+				unmarshaler.Unmarshal(requestBody.Bytes())
+
+				var buf bytes.Buffer
+				encoder := json.NewEncoder(&buf)
+				encoder.SetIndent("", "  ")
+				encoder.Encode(unmarshaler)
+
+				requestExample = buf.String()
 			}
 
 			if unmarshaler := opt.WithProtoBuffer.ResponseUnmarshaler; unmarshaler != nil {
-				err := unmarshaler.Unmarshal(rw.responseBody)
-				if err != nil {
-					log.Printf("[ERROR] httpdoc: Failed to unmarshal %#v: %s", unmarshaler, err)
-				} else {
-					var buf bytes.Buffer
-					encoder := json.NewEncoder(&buf)
-					encoder.SetIndent("", "  ")
-					if err := encoder.Encode(unmarshaler); err != nil {
-						log.Printf("[ERROR] httpdoc: Failed to encode %#v to json: %s", unmarshaler, err)
-					} else {
-						responseExample = buf.String()
-					}
-				}
+				unmarshaler.Unmarshal(rw.responseBody)
+
+				var buf bytes.Buffer
+				encoder := json.NewEncoder(&buf)
+				encoder.SetIndent("", "  ")
+				encoder.Encode(unmarshaler)
+
+				responseExample = buf.String()
 			}
 		}
 
