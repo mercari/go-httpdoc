@@ -42,7 +42,7 @@ Response fields
 
 Response example
 
-```
+```javascript
 {
   "id": 169743,
   "name": "Immortan Joe",
