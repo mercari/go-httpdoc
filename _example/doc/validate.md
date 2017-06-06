@@ -41,7 +41,7 @@ Request fields
 
 Request example
 
-```
+```javascript
 {
  "name": "tcnksm",
  "email": "tcnksm@mercari.com",
@@ -73,7 +73,7 @@ Response fields
 
 Response example
 
-```
+```javascript
 {
  "id": 11241988,
  "name": "tcnksm"
