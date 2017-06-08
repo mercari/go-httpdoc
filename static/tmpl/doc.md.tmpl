@@ -47,9 +47,14 @@ Request fields
 {{ if .RequestExample -}}
 Request example
 
+<details>
+<summary>Click to expand code.</summary>
+
 ```javascript
 {{ .RequestExample }}
 ```
+
+</details>
 {{ end }}
 
 ### Response
@@ -77,8 +82,14 @@ Response fields
 {{ if .ResponseExample -}}
 Response example
 
+<details>
+<summary>Click to expand code.</summary>
+
 ```javascript
 {{ .ResponseExample }}
 ```
+
+</details>
+
 {{ end }}
 {{ end }}
