@@ -92,7 +92,7 @@ func TestTemplateGenerate_InvalidPath(t *testing.T) {
 
 func TestTemplateGenerate_InvalidTmpl(t *testing.T) {
 	doc := &Document{
-		tmpl: "no-such-template",
+		Template: "no-such-template",
 	}
 	if err := doc.generate(ioutil.Discard); err == nil {
 		t.Fatalf("expect to be failed")

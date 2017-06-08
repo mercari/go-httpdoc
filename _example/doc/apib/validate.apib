@@ -1,0 +1,41 @@
+# Example API (with validation)
+
+# POST /v1/user
+Create a new user
++ Name - User Name
++ Email - User email address
++ Attribute.Birthday - User birthday YYYY-MM-DD format
+
+
++ Parameters
+  + pretty - Pretty print response message
+  + token - Request token
+
++ Request (application/json)
+
+  + Headers
+        X-Version: 2
+
+
+  + Body
+      {
+ "name": "tcnksm",
+ "email": "tcnksm@mercari.com",
+ "attribute": {
+  "birthday": "1988-11-24"
+ }
+}
+
++ Response 200
+
+  + Headers
+        Content-Type: application/json
+
+
+  + Body
+      {
+ "id": 11241988,
+ "name": "tcnksm"
+}
+
+

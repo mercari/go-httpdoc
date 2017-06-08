@@ -19,6 +19,12 @@ func TestUserHandlerWithValidate(t *testing.T) {
 		if err := document.Generate("doc/validate.md"); err != nil {
 			t.Fatalf("err: %s", err)
 		}
+
+		// This is still experimental.
+		document.Template = httpdoc.ExperimentalTmplAPIBlueprint
+		if err := document.Generate("doc/apib/validate.apib"); err != nil {
+			t.Fatalf("err: %s", err)
+		}
 	}()
 
 	mux := http.NewServeMux()

@@ -33,8 +33,8 @@ type Document struct {
 	// This is exported just for templating.
 	Entries []Entry
 
-	// tmpl is template file to use. Currently this is only static/tmpl/doc.md.tmpl
-	tmpl string
+	// Template is template file to use. Default is TmplMarkdown.
+	Template builtinTmpl
 
 	logger *log.Logger
 }
