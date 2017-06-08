@@ -41,6 +41,9 @@ Request fields
 
 Request example
 
+<details>
+<summary>Click to expand code.</summary>
+
 ```javascript
 {
  "name": "tcnksm",
@@ -51,6 +54,8 @@ Request example
 }
 
 ```
+
+</details>
 
 
 ### Response
@@ -73,6 +78,9 @@ Response fields
 
 Response example
 
+<details>
+<summary>Click to expand code.</summary>
+
 ```javascript
 {
  "id": 11241988,
@@ -80,5 +88,8 @@ Response example
 }
 
 ```
+
+</details>
+
 
 

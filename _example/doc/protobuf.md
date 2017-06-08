@@ -42,6 +42,9 @@ Response fields
 
 Response example
 
+<details>
+<summary>Click to expand code.</summary>
+
 ```javascript
 {
   "id": 169743,
@@ -53,5 +56,8 @@ Response example
 }
 
 ```
+
+</details>
+
 
 
