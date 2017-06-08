@@ -1,0 +1,32 @@
+# {{ .Name }}
+
+{{ range .Entries -}}
+
+# {{ .Method }} {{ .Path }}
+{{ .Description }}
+{{ if .RequestFields -}}
+{{ range .RequestFields -}}
++ {{ .Name }} - {{ .Description }}
+{{ end }}
+{{ end }}
+{{ if .RequestParams -}}
++ Parameters
+{{ range .RequestParams }}  + {{ .Name }} - {{ .Description }}
+{{ end }}{{ end }}
++ Request (application/json)
+{{ if .RequestHeaders }}
+  + Headers
+{{ range .RequestHeaders }}        {{ .Name }}: {{ .Value }}
+{{ end }}
+{{ end }}
+  + Body
+      {{ .RequestExample }}
++ Response {{ .ResponseStatusCode }}
+{{ if .ResponseHeaders }}
+  + Headers
+{{ range .ResponseHeaders }}        {{ .Name }}: {{ .Value }}
+{{ end }}
+{{ end }}
+  + Body
+      {{ .ResponseExample }}
+{{ end }}

@@ -10,8 +10,20 @@ import (
 	"github.com/mercari/go-httpdoc/static"
 )
 
+const (
+	// TmplMarkdown is markdown tempalte.
+	TmplMarkdown builtinTmpl = "tmpl/markdown.tmpl"
+
+	// ExperimentalTmplAPIBlueprint is experimental support for API blueprint template.
+	// This maybe be modified or deleted.
+	ExperimentalTmplAPIBlueprint builtinTmpl = "tmpl/api-blueprint.tmpl"
+)
+
 // defaultTmpl is default template file to use.
-var defaultTmpl = "tmpl/doc.md.tmpl"
+var defaultTmpl = TmplMarkdown
+
+// builtinTmpl is builtin template.
+type builtinTmpl string
 
 // Generate writes documentation into the given file. Generation is skipped
 // if EnvHTTPDoc is empty. If directory does not exist or any, it returns error.
@@ -32,11 +44,11 @@ func (d *Document) Generate(path string) error {
 }
 
 func (d *Document) generate(w io.Writer) error {
-	if d.tmpl == "" {
-		d.tmpl = defaultTmpl
+	if d.Template == "" {
+		d.Template = defaultTmpl
 	}
 
-	buf, err := static.Asset(d.tmpl)
+	buf, err := static.Asset(string(d.Template))
 	if err != nil {
 		return err
 	}
