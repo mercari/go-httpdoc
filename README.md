@@ -19,7 +19,7 @@ See usage and example in [GoDoc](https://godoc.org/github.com/mercari/go-httpdoc
 Use go get:
 
 ```
-$ go get github.com/mercari/go-httpdoc
+$ go get -u go.mercari.io/go-httpdoc
 ```
 
 ## Usage
