@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	httpdoc "github.com/mercari/go-httpdoc"
+	httpdoc "go.mercari.io/go-httpdoc"
 )
 
 func TestUserHandlerSimple(t *testing.T) {
