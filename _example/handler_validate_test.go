@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	httpdoc "github.com/mercari/go-httpdoc"
+	httpdoc "go.mercari.io/go-httpdoc"
 )
 
 func TestUserHandlerWithValidate(t *testing.T) {

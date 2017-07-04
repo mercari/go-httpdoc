@@ -7,7 +7,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/mercari/go-httpdoc/static"
+	"go.mercari.io/go-httpdoc/static"
 )
 
 // defaultTmpl is default template file to use.
