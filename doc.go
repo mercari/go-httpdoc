@@ -6,4 +6,4 @@
 // params or response fields).
 //
 // See example document output, https://github.com/mercari/go-httpdoc/blob/master/_example/doc/validate.md
-package httpdoc
+package httpdoc // import "go.mercari.io/go-httpdoc"
