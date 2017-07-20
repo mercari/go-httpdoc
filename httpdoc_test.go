@@ -281,9 +281,7 @@ func TestConvertHeaders(t *testing.T) {
 		},
 	}
 
-	sort.Slice(got, func(i, j int) bool {
-		return got[i].Name < got[j].Name
-	})
+	sort.Sort(byName(got))
 
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %#v, want %#v", got, want)
