@@ -15,5 +15,5 @@ message UserProtoResponse {
   int32 id = 1;
   string name = 2;
   bool active = 3;
-  Setting setting =4;
+  Setting setting = 4;
 }
