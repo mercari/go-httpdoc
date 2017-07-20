@@ -194,8 +194,10 @@ func Record(next http.Handler, document *Document, opt *RecordOption) http.Handl
 
 				var buf bytes.Buffer
 				encoder := json.NewEncoder(&buf)
-				encoder.SetIndent("", "  ")
 				encoder.Encode(unmarshaler)
+				s := buf.String()
+				buf.Reset()
+				json.Indent(&buf, []byte(s), "", "  ")
 
 				requestExample = buf.String()
 			}
@@ -205,8 +207,10 @@ func Record(next http.Handler, document *Document, opt *RecordOption) http.Handl
 
 				var buf bytes.Buffer
 				encoder := json.NewEncoder(&buf)
-				encoder.SetIndent("", "  ")
 				encoder.Encode(unmarshaler)
+				s := buf.String()
+				buf.Reset()
+				json.Indent(&buf, []byte(s), "", "  ")
 
 				responseExample = buf.String()
 			}
