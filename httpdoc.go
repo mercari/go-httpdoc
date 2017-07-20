@@ -118,6 +118,12 @@ type Data struct {
 	Description string
 }
 
+type byName []Data
+
+func (n byName) Len() int           { return len(n) }
+func (n byName) Less(i, j int) bool { return n[i].Name < n[j].Name }
+func (n byName) Swap(i, j int)      { n[i], n[j] = n[j], n[i] }
+
 // Record is a http middleware. It records all request & response values which the given http handler
 // receives & response and save it in the given Document.
 func Record(next http.Handler, document *Document, opt *RecordOption) http.Handler {
@@ -229,13 +235,8 @@ func Record(next http.Handler, document *Document, opt *RecordOption) http.Handl
 
 // format sorts entry data to prevent results updated everytime.
 func (e *Entry) format() error {
-	sort.Slice(e.RequestHeaders, func(i, j int) bool {
-		return e.RequestHeaders[i].Name < e.RequestHeaders[j].Name
-	})
-
-	sort.Slice(e.RequestParams, func(i, j int) bool {
-		return e.RequestParams[i].Name < e.RequestParams[j].Name
-	})
+	sort.Sort(byName(e.RequestHeaders))
+	sort.Sort(byName(e.RequestParams))
 
 	return nil
 }
