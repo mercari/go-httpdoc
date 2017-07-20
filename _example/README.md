@@ -17,6 +17,8 @@ One example uses protocol buffer, message definition is in [`../proto`](../proto
 ```bash
 # Install protoc-gen-go if you don't have it
 $ go get -u github.com/golang/protobuf/protoc-gen-go
+# Install protoc-gen-gofast because we use gogo/protobuf/protoc-gen-gofast.
+$ go get -u github.com/gogo/protobuf/protoc-gen-gofast
 
 $ protoc -I=./../proto --gofast_out=./ ../proto/message.proto
 ```
