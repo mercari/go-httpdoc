@@ -23,6 +23,11 @@ func (d *Document) Generate(path string) error {
 	}
 
 	path, _ = filepath.Abs(path)
+	if _, err := os.Stat(filepath.Dir(path)); err != nil && os.IsNotExist(err) {
+		if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+			return err
+		}
+	}
 	f, err := os.Create(path)
 	if err != nil {
 		return err
