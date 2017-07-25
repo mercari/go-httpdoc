@@ -80,14 +80,15 @@ func TestFuncMap(t *testing.T) {
 	}
 }
 
-func TestTemplateGenerate_InvalidPath(t *testing.T) {
+func TestTemplateGenerate_NotExistDir(t *testing.T) {
 	resetF := setEnv(t, EnvHTTPDoc, "1")
 	defer resetF()
 
 	doc := &Document{}
-	if err := doc.Generate("/tmp/httpdoc/no-such-file-or-directory"); err == nil {
+	if err := doc.Generate("/tmp/httpdoc/no-such-file-or-directory"); err != nil {
 		t.Fatalf("expect to be failed")
 	}
+	defer os.RemoveAll("/tmp/httpdoc")
 }
 
 func TestTemplateGenerate_InvalidTmpl(t *testing.T) {
