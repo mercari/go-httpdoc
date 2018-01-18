@@ -4,9 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math/rand"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -68,11 +71,17 @@ func TestValidator_RequestParams(t *testing.T) {
 	validator.record.requestParams = map[string][]string{
 		"token":  []string{"12345"},
 		"pretty": []string{"true"},
+		"year":   []string{strconv.Itoa(time.Now().Year())},
 	}
 
 	validator.RequestParams(t, []TestCase{
 		{"token", "12345", "", nil},
 		{"pretty", "true", "", nil},
+		{"year", "thisyear", "", func(t *testing.T, expected, actual interface{}, desc string) {
+			if expected != "thisyear" {
+				t.Fatal("expected is not thisyear")
+			}
+		}},
 	})
 
 	var got int
@@ -124,13 +133,32 @@ func TestValidator_RequestHeaders(t *testing.T) {
 
 func TestValidator_ResponseHeaders(t *testing.T) {
 	validator := newValidator()
+	rand.Seed(time.Now().UnixNano())
+	length := 0
+	for {
+		length = rand.Intn(100000)
+		if length > 0 {
+			break
+		}
+	}
+
 	validator.record.responseHeaders = map[string][]string{
-		"Content-Type":  []string{"application/json"},
-		"X-API-Version": []string{"1.1.2"},
+		"Content-Type":   []string{"application/json"},
+		"X-API-Version":  []string{"1.1.2"},
+		"Content-Length": []string{strconv.Itoa(length)},
 	}
 	validator.ResponseHeaders(t, []TestCase{
 		{"Content-Type", "application/json", "", nil},
 		{"X-API-Version", "1.1.2", "", nil},
+		{"Content-Length", []string{"content length"}, "length is change every time", func(t *testing.T, expected, actual interface{}, desc string) {
+			contentLength, err := strconv.Atoi(actual.(string))
+			if err != nil {
+				t.Fatal("actual is not number")
+			}
+			if contentLength <= 0 {
+				t.Fatal("actual must be greater than 0")
+			}
+		}},
 	})
 
 	var got int
@@ -205,6 +233,11 @@ func TestValidator_ResponseBody(t *testing.T) {
 		{"ID", 789, "", nil},
 		{"Active", false, "", nil},
 		{"Setting.Email", "tcnksm@mercari.com", "", nil},
+		{"Setting.Email", "custommail", "", func(t *testing.T, expected, actual interface{}, desc string) {
+			if expected != "custommail" {
+				t.Fatal("Setting.Email is not custommail")
+			}
+		}},
 		{"Permission[1]", "read", "", nil},
 		{`Preference["email"]`, 0, "", nil},
 	}, &User{})
@@ -253,6 +286,11 @@ func TestValidateFields(t *testing.T) {
 		{"ID", 12345, "", nil},
 		{"Name", "tcnksm", "", nil},
 		{"Active", true, "", nil},
+		{"Active", "customactive", "", func(t *testing.T, expected, actual interface{}, desc string) {
+			if expected != "customactive" {
+				t.Fatal("Acitve is not customactive")
+			}
+		}},
 		{"Setting.Email", "tcnksm@example.com", "", nil},
 		{"Setting.SNS.Twitter", "@deeeet", "", nil},
 		{"Permission[0]", "write", "", nil},
@@ -275,6 +313,11 @@ func TestValidator_RequestBody_Proto(t *testing.T) {
 	validator.RequestBody(t, []TestCase{
 		{"Id", int32(12345), "", nil},
 		{"Name", "tcnksm", "", nil},
+		{"Id", "customid", "custom assert func test", func(t *testing.T, expected, actual interface{}, desc string) {
+			if expected != "customid" {
+				t.Fatal("expected is not customid")
+			}
+		}},
 	}, &UserProtoRequest{})
 
 	var got int
