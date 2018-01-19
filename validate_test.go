@@ -73,7 +73,7 @@ func TestValidator_RequestParams(t *testing.T) {
 		"pretty": []string{"true"},
 		"year":   []string{strconv.Itoa(time.Now().Year())},
 	}
-
+	thisYearcalledAssertFunc := false
 	validator.RequestParams(t, []TestCase{
 		{"token", "12345", "", nil},
 		{"pretty", "true", "", nil},
@@ -81,8 +81,13 @@ func TestValidator_RequestParams(t *testing.T) {
 			if expected != "thisyear" {
 				t.Fatal("expected is not thisyear")
 			}
+			thisYearcalledAssertFunc = true
 		}},
 	})
+
+	if thisYearcalledAssertFunc == false {
+		t.Fatal("thisYear AssertFunc should be called.")
+	}
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
@@ -147,6 +152,7 @@ func TestValidator_ResponseHeaders(t *testing.T) {
 		"X-API-Version":  []string{"1.1.2"},
 		"Content-Length": []string{strconv.Itoa(length)},
 	}
+	contentLengthCalledAssertFunc := false
 	validator.ResponseHeaders(t, []TestCase{
 		{"Content-Type", "application/json", "", nil},
 		{"X-API-Version", "1.1.2", "", nil},
@@ -158,8 +164,13 @@ func TestValidator_ResponseHeaders(t *testing.T) {
 			if contentLength <= 0 {
 				t.Fatal("actual must be greater than 0")
 			}
+			contentLengthCalledAssertFunc = true
 		}},
 	})
+
+	if contentLengthCalledAssertFunc == false {
+		t.Fatal("content length AssertFunc should be called.")
+	}
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
@@ -229,6 +240,7 @@ func TestValidator_ResponseBody(t *testing.T) {
   }
 }
 `)
+	custommailCalledAssertFunc := false
 	validator.ResponseBody(t, []TestCase{
 		{"ID", 789, "", nil},
 		{"Active", false, "", nil},
@@ -237,10 +249,15 @@ func TestValidator_ResponseBody(t *testing.T) {
 			if expected != "custommail" {
 				t.Fatal("Setting.Email is not custommail")
 			}
+			custommailCalledAssertFunc = true
 		}},
 		{"Permission[1]", "read", "", nil},
 		{`Preference["email"]`, 0, "", nil},
 	}, &User{})
+
+	if custommailCalledAssertFunc == false {
+		t.Fatal("custom mail AssertFunc should be called.")
+	}
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
@@ -281,6 +298,8 @@ func TestValidateFields(t *testing.T) {
 			"push":  1,
 		},
 	}
+
+	activeCalledAssertFunc := false
 	validator := newValidator()
 	validator.validateFields(t, []TestCase{
 		{"ID", 12345, "", nil},
@@ -290,12 +309,17 @@ func TestValidateFields(t *testing.T) {
 			if expected != "customactive" {
 				t.Fatal("Acitve is not customactive")
 			}
+			activeCalledAssertFunc = true
 		}},
 		{"Setting.Email", "tcnksm@example.com", "", nil},
 		{"Setting.SNS.Twitter", "@deeeet", "", nil},
 		{"Permission[0]", "write", "", nil},
 		{`Preference["email"]`, 0, "", nil},
 	}, testUser, &[]Data{})
+
+	if activeCalledAssertFunc == false {
+		t.Fatal("active AssertFunc should be called.")
+	}
 }
 
 func TestValidator_RequestBody_Proto(t *testing.T) {
@@ -310,6 +334,7 @@ func TestValidator_RequestBody_Proto(t *testing.T) {
 	validator := newValidator()
 	validator.record.requestBody = buf
 	validator.unmarshalFunc = protoUnmarshalFunc
+	customIDCalledAssertFunc := false
 	validator.RequestBody(t, []TestCase{
 		{"Id", int32(12345), "", nil},
 		{"Name", "tcnksm", "", nil},
@@ -317,8 +342,13 @@ func TestValidator_RequestBody_Proto(t *testing.T) {
 			if expected != "customid" {
 				t.Fatal("expected is not customid")
 			}
+			customIDCalledAssertFunc = true
 		}},
 	}, &UserProtoRequest{})
+
+	if customIDCalledAssertFunc == false {
+		t.Fatal("custom id AssertFunc should be called.")
+	}
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
