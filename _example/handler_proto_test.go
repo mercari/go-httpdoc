@@ -31,8 +31,8 @@ func TestUserHandlerWithProtobuf(t *testing.T) {
 
 		WithValidate: func(validator *httpdoc.Validator) {
 			validator.ResponseBody(t, []httpdoc.TestCase{
-				{"Name", "Immortan Joe", "User name"},
-				{"Setting.Email", "immortan@madmax.com", "User email"}},
+				httpdoc.NewTestCase("Name", "Immortan Joe", "User name"),
+				httpdoc.NewTestCase("Setting.Email", "immortan@madmax.com", "User email")},
 				&UserProtoResponse{},
 			)
 		},

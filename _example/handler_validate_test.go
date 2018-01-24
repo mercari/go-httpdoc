@@ -35,25 +35,25 @@ func TestUserHandlerWithValidate(t *testing.T) {
 		// and it will be the document.
 		WithValidate: func(validator *httpdoc.Validator) {
 			validator.RequestParams(t, []httpdoc.TestCase{
-				{"token", "12345", "Request token"},
-				{"pretty", "", "Pretty print response message"},
+				httpdoc.NewTestCase("token", "12345", "Request token"),
+				httpdoc.NewTestCase("pretty", "", "Pretty print response message"),
 			})
 
 			validator.RequestHeaders(t, []httpdoc.TestCase{
-				{"X-Version", "2", "Request API version"},
+				httpdoc.NewTestCase("X-Version", "2", "Request API version"),
 			})
 
 			validator.RequestBody(t, []httpdoc.TestCase{
-				{"Name", "tcnksm", "User Name"},
-				{"Email", "tcnksm@mercari.com", "User email address"},
-				{"Attribute.Birthday", "1988-11-24", "User birthday YYYY-MM-DD format"}},
+				httpdoc.NewTestCase("Name", "tcnksm", "User Name"),
+				httpdoc.NewTestCase("Email", "tcnksm@mercari.com", "User email address"),
+				httpdoc.NewTestCase("Attribute.Birthday", "1988-11-24", "User birthday YYYY-MM-DD format")},
 				&createUserRequest{},
 			)
 
 			validator.ResponseStatusCode(t, http.StatusOK)
 
 			validator.ResponseBody(t, []httpdoc.TestCase{
-				{"ID", 11241988, "User ID assigned"}},
+				httpdoc.NewTestCase("ID", 11241988, "User ID assigned")},
 				&createUserResponse{},
 			)
 		},
