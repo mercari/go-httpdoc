@@ -86,6 +86,11 @@ type TestCase struct {
 	AssertFunc  assertFunc
 }
 
+// NewTestCase returns new TestCase.
+func NewTestCase(target string, expected interface{}, description string) TestCase {
+	return TestCase{Target: target, Expected: expected, Description: description}
+}
+
 func newValidator() *Validator {
 	return &Validator{
 		unmarshalFunc: defaultUnmarshalFunc,
