@@ -75,8 +75,8 @@ type record struct {
 // TestCase can be used like table-driven way.
 //
 //   validator.RequestParams(t, []httpdoc.TestCase{
-//       {"token", "12345", "Request token"},
-//       {"pretty", "true", "Pretty print response message"},
+//       NewTestCase("token","12345","Request token"),
+//       NewTestCase("pretty","true","Pretty print response message"),
 //	 })
 //
 type TestCase struct {
