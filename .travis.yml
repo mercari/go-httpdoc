@@ -1,9 +1,20 @@
 language: go
 go:
-  - 1.6.x
   - 1.8.x
   - 1.9.x
   - tip
+
+env:  # need matrix.allow_failures
+
+matrix:
+  include:
+  - os: linux
+    go: 1.6.x
+  - os: osx
+    go: 1.6.x
+  allow_failures:
+  - os: osx
+    go: 1.6.x
 
 go_import_path: go.mercari.io/go-httpdoc
 
