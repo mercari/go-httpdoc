@@ -14,6 +14,10 @@ See usage and example in [GoDoc](https://godoc.org/go.mercari.io/go-httpdoc).
 
 *NOTE*: This package is experimental and may make backward-incompatible changes.
 
+## Prerequisites
+
+go-httpdoc requires Go 1.7 or later.
+
 ## Install
 
 Use go get:
