@@ -4,9 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math/rand"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -68,19 +71,30 @@ func TestValidator_RequestParams(t *testing.T) {
 	validator.record.requestParams = map[string][]string{
 		"token":  []string{"12345"},
 		"pretty": []string{"true"},
+		"year":   []string{strconv.Itoa(time.Now().Year())},
 	}
-
+	thisYearcalledAssertFunc := false
 	validator.RequestParams(t, []TestCase{
-		{"token", "12345", ""},
-		{"pretty", "true", ""},
+		NewTestCase("token", "12345", ""),
+		NewTestCase("pretty", "true", ""),
+		{"year", "thisyear", "", func(t *testing.T, expected, actual interface{}, desc string) {
+			if expected != "thisyear" {
+				t.Fatal("expected is not thisyear")
+			}
+			thisYearcalledAssertFunc = true
+		}},
 	})
+
+	if thisYearcalledAssertFunc == false {
+		t.Fatal("thisYear AssertFunc should be called.")
+	}
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
 	validator.RequestParams(t, []TestCase{
-		{"token", "8976", ""},
-		{"pretty", "", ""},
-		{"id", "u8988", ""},
+		NewTestCase("token", "8976", ""),
+		NewTestCase("pretty", "", ""),
+		NewTestCase("id", "u8988", ""),
 	})
 	if want := 3; got != want {
 		t.Fatalf("expect valiate fails %d, got %d", want, got)
@@ -95,17 +109,17 @@ func TestValidator_RequestHeaders(t *testing.T) {
 		"X-API-Version": []string{"1.1.2"},
 	}
 	validator.RequestHeaders(t, []TestCase{
-		{"User-Agent", "Googlebot/2.1", ""},
-		{"Content-Type", "application/json", ""},
-		{"X-API-Version", "1.1.2", ""},
+		NewTestCase("User-Agent", "Googlebot/2.1", ""),
+		NewTestCase("Content-Type", "application/json", ""),
+		NewTestCase("X-API-Version", "1.1.2", ""),
 	})
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
 	validator.RequestHeaders(t, []TestCase{
-		{"User-Agent", []string{"curl"}, ""},
-		{"Content-Type", []string{"application/protobuf"}, ""},
-		{"X-API-Version", []string{"3.0"}, ""},
+		NewTestCase("User-Agent", []string{"curl"}, ""),
+		NewTestCase("Content-Type", []string{"application/protobuf"}, ""),
+		NewTestCase("X-API-Version", []string{"3.0"}, ""),
 	})
 	if want := 3; got != want {
 		t.Fatalf("expect valiate fails %d, got %d", want, got)
@@ -114,7 +128,7 @@ func TestValidator_RequestHeaders(t *testing.T) {
 	var buf bytes.Buffer
 	tFatalf = fprintFatalFunc(&buf)
 	validator.RequestHeaders(t, []TestCase{
-		{"Not-Found", []string{""}, ""},
+		NewTestCase("Not-Found", []string{""}, ""),
 	})
 
 	if got, want := buf.String(), "not found"; !strings.Contains(got, want) {
@@ -124,19 +138,44 @@ func TestValidator_RequestHeaders(t *testing.T) {
 
 func TestValidator_ResponseHeaders(t *testing.T) {
 	validator := newValidator()
-	validator.record.responseHeaders = map[string][]string{
-		"Content-Type":  []string{"application/json"},
-		"X-API-Version": []string{"1.1.2"},
+	rand.Seed(time.Now().UnixNano())
+	length := 0
+	for {
+		length = rand.Intn(100000)
+		if length > 0 {
+			break
+		}
 	}
+
+	validator.record.responseHeaders = map[string][]string{
+		"Content-Type":   []string{"application/json"},
+		"X-API-Version":  []string{"1.1.2"},
+		"Content-Length": []string{strconv.Itoa(length)},
+	}
+	contentLengthCalledAssertFunc := false
 	validator.ResponseHeaders(t, []TestCase{
-		{"Content-Type", "application/json", ""},
-		{"X-API-Version", "1.1.2", ""},
+		NewTestCase("Content-Type", "application/json", ""),
+		NewTestCase("X-API-Version", "1.1.2", ""),
+		{"Content-Length", []string{"content length"}, "length is change every time", func(t *testing.T, expected, actual interface{}, desc string) {
+			contentLength, err := strconv.Atoi(actual.(string))
+			if err != nil {
+				t.Fatal("actual is not number")
+			}
+			if contentLength <= 0 {
+				t.Fatal("actual must be greater than 0")
+			}
+			contentLengthCalledAssertFunc = true
+		}},
 	})
+
+	if contentLengthCalledAssertFunc == false {
+		t.Fatal("content length AssertFunc should be called.")
+	}
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
 	validator.ResponseHeaders(t, []TestCase{
-		{"Content-Type", []string{"application/protobuf"}, ""},
+		NewTestCase("Content-Type", []string{"application/protobuf"}, ""),
 	})
 	if want := 1; got != want {
 		t.Fatalf("expect valiate fails %d, got %d", want, got)
@@ -145,7 +184,7 @@ func TestValidator_ResponseHeaders(t *testing.T) {
 	var buf bytes.Buffer
 	tFatalf = fprintFatalFunc(&buf)
 	validator.ResponseHeaders(t, []TestCase{
-		{"Not-Found", []string{""}, ""},
+		NewTestCase("Not-Found", []string{""}, ""),
 	})
 
 	if got, want := buf.String(), "not found"; !strings.Contains(got, want) {
@@ -163,16 +202,16 @@ func TestValidator_RequestBody(t *testing.T) {
 }
 `)
 	validator.RequestBody(t, []TestCase{
-		{"ID", 910, ""},
-		{"Setting.Email", "taichi@mercari.com", ""},
+		NewTestCase("ID", 910, ""),
+		NewTestCase("Setting.Email", "taichi@mercari.com", ""),
 	}, &User{})
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
 	validator.RequestBody(t, []TestCase{
-		{"ID", 123, ""},
-		{"Active", true, ""},
-		{"Setting.Email", "deeeet@gmail.com", ""},
+		NewTestCase("ID", 123, ""),
+		NewTestCase("Active", true, ""),
+		NewTestCase("Setting.Email", "deeeet@gmail.com", ""),
 	}, &User{})
 
 	if want := 3; got != want {
@@ -201,22 +240,33 @@ func TestValidator_ResponseBody(t *testing.T) {
   }
 }
 `)
+	custommailCalledAssertFunc := false
 	validator.ResponseBody(t, []TestCase{
-		{"ID", 789, ""},
-		{"Active", false, ""},
-		{"Setting.Email", "tcnksm@mercari.com", ""},
-		{"Permission[1]", "read", ""},
-		{`Preference["email"]`, 0, ""},
+		NewTestCase("ID", 789, ""),
+		NewTestCase("Active", false, ""),
+		NewTestCase("Setting.Email", "tcnksm@mercari.com", ""),
+		{"Setting.Email", "custommail", "", func(t *testing.T, expected, actual interface{}, desc string) {
+			if expected != "custommail" {
+				t.Fatal("Setting.Email is not custommail")
+			}
+			custommailCalledAssertFunc = true
+		}},
+		NewTestCase("Permission[1]", "read", ""),
+		{`Preference["email"]`, 0, "", nil},
 	}, &User{})
+
+	if custommailCalledAssertFunc == false {
+		t.Fatal("custom mail AssertFunc should be called.")
+	}
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
 	validator.ResponseBody(t, []TestCase{
-		{"ID", 123, ""},
-		{"Active", true, ""},
-		{"Setting.Email", "deeeet@gmail.com", ""},
-		{"Permission[1]", "write", ""},
-		{`Preference["email"]`, 1, ""},
+		NewTestCase("ID", 123, ""),
+		NewTestCase("Active", true, ""),
+		NewTestCase("Setting.Email", "deeeet@gmail.com", ""),
+		NewTestCase("Permission[1]", "write", ""),
+		{`Preference["email"]`, 1, "", nil},
 	}, &User{})
 
 	if want := 5; got != want {
@@ -248,16 +298,28 @@ func TestValidateFields(t *testing.T) {
 			"push":  1,
 		},
 	}
+
+	activeCalledAssertFunc := false
 	validator := newValidator()
 	validator.validateFields(t, []TestCase{
-		{"ID", 12345, ""},
-		{"Name", "tcnksm", ""},
-		{"Active", true, ""},
-		{"Setting.Email", "tcnksm@example.com", ""},
-		{"Setting.SNS.Twitter", "@deeeet", ""},
-		{"Permission[0]", "write", ""},
-		{`Preference["email"]`, 0, ""},
+		NewTestCase("ID", 12345, ""),
+		NewTestCase("Name", "tcnksm", ""),
+		NewTestCase("Active", true, ""),
+		{"Active", "customactive", "", func(t *testing.T, expected, actual interface{}, desc string) {
+			if expected != "customactive" {
+				t.Fatal("Acitve is not customactive")
+			}
+			activeCalledAssertFunc = true
+		}},
+		NewTestCase("Setting.Email", "tcnksm@example.com", ""),
+		NewTestCase("Setting.SNS.Twitter", "@deeeet", ""),
+		NewTestCase("Permission[0]", "write", ""),
+		{`Preference["email"]`, 0, "", nil},
 	}, testUser, &[]Data{})
+
+	if activeCalledAssertFunc == false {
+		t.Fatal("active AssertFunc should be called.")
+	}
 }
 
 func TestValidator_RequestBody_Proto(t *testing.T) {
@@ -272,15 +334,26 @@ func TestValidator_RequestBody_Proto(t *testing.T) {
 	validator := newValidator()
 	validator.record.requestBody = buf
 	validator.unmarshalFunc = protoUnmarshalFunc
+	customIDCalledAssertFunc := false
 	validator.RequestBody(t, []TestCase{
-		{"Id", int32(12345), ""},
-		{"Name", "tcnksm", ""},
+		NewTestCase("Id", int32(12345), ""),
+		NewTestCase("Name", "tcnksm", ""),
+		{"Id", "customid", "custom assert func test", func(t *testing.T, expected, actual interface{}, desc string) {
+			if expected != "customid" {
+				t.Fatal("expected is not customid")
+			}
+			customIDCalledAssertFunc = true
+		}},
 	}, &UserProtoRequest{})
+
+	if customIDCalledAssertFunc == false {
+		t.Fatal("custom id AssertFunc should be called.")
+	}
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
 	validator.RequestBody(t, []TestCase{
-		{"Id", 123, ""},
+		NewTestCase("Id", 123, ""),
 	}, &UserProtoRequest{})
 
 	if want := 1; got != want {
@@ -303,15 +376,15 @@ func TestValidator_ResponseBody_Proto(t *testing.T) {
 	validator.unmarshalFunc = protoUnmarshalFunc
 	validator.record.responseBody = buf
 	validator.ResponseBody(t, []TestCase{
-		{"Id", int32(667854), ""},
-		{"Setting.Email", "httpdoc@example.com", ""},
+		NewTestCase("Id", int32(667854), ""),
+		NewTestCase("Setting.Email", "httpdoc@example.com", ""),
 	}, &UserProtoResponse{})
 
 	var got int
 	validator.assertFunc = testAssertWithCount(&got)
 	validator.ResponseBody(t, []TestCase{
-		{"Id", 123, ""},
-		{"Setting.Email", "deeeet@gmail.com", ""},
+		NewTestCase("Id", 123, ""),
+		NewTestCase("Setting.Email", "deeeet@gmail.com", ""),
 	}, &UserProtoResponse{})
 
 	if want := 2; got != want {

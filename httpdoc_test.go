@@ -119,7 +119,7 @@ func TestRecord(t *testing.T) {
 				ExcludeHeaders: testExcludeHeaders,
 				WithValidate: func(v *Validator) {
 					v.RequestParams(t, []TestCase{
-						{"token", "123456", "Test token"},
+						NewTestCase("token", "123456", "Test token"),
 					})
 				},
 			},

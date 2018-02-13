@@ -75,14 +75,20 @@ type record struct {
 // TestCase can be used like table-driven way.
 //
 //   validator.RequestParams(t, []httpdoc.TestCase{
-//       {"token", "12345", "Request token"},
-//       {"pretty", "true", "Pretty print response message"},
+//       NewTestCase("token","12345","Request token"),
+//       NewTestCase("pretty","true","Pretty print response message"),
 //	 })
 //
 type TestCase struct {
 	Target      string
 	Expected    interface{}
 	Description string
+	AssertFunc  assertFunc
+}
+
+// NewTestCase returns new TestCase.
+func NewTestCase(target string, expected interface{}, description string) TestCase {
+	return TestCase{Target: target, Expected: expected, Description: description}
 }
 
 func newValidator() *Validator {
@@ -107,7 +113,7 @@ func (v *Validator) RequestParams(t *testing.T, cases []TestCase) {
 			Description: tc.Description,
 		}
 		v.requestParams = append(v.requestParams, data)
-		v.assertFunc(t, tc.Expected, v.record.requestParams.Get(tc.Target), tc.Description)
+		pickAssertFunc(&tc, v)(t, tc.Expected, v.record.requestParams.Get(tc.Target), tc.Description)
 	}
 }
 
@@ -131,7 +137,7 @@ func (v *Validator) RequestHeaders(t *testing.T, cases []TestCase) {
 			actual = h[0]
 		}
 
-		v.assertFunc(t, tc.Expected, actual, tc.Description)
+		pickAssertFunc(&tc, v)(t, tc.Expected, actual, tc.Description)
 	}
 }
 
@@ -154,7 +160,7 @@ func (v *Validator) ResponseHeaders(t *testing.T, cases []TestCase) {
 			}
 			actual = h[0]
 		}
-		v.assertFunc(t, tc.Expected, actual, tc.Description)
+		pickAssertFunc(&tc, v)(t, tc.Expected, actual, tc.Description)
 	}
 }
 
@@ -210,6 +216,13 @@ func (vl *Validator) validateFields(t *testing.T, cases []TestCase, v interface{
 		}
 		*fields = append(*fields, data)
 		actual, _ := gpath.At(v, tc.Target)
-		vl.assertFunc(t, tc.Expected, actual, tc.Description)
+		pickAssertFunc(&tc, vl)(t, tc.Expected, actual, tc.Description)
 	}
+}
+
+func pickAssertFunc(tc *TestCase, v *Validator) assertFunc {
+	if tc.AssertFunc != nil {
+		return tc.AssertFunc
+	}
+	return v.assertFunc
 }
