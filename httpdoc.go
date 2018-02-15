@@ -82,7 +82,7 @@ type RecordOption struct {
 
 	// WithValidate option, you can validate various http request & response parameter values.
 	// It inspects values which handler receives and checks it's expected or not.
-	// If not it asserts and fails the test. If ok, uses it for documentaion entry.
+	// If not it asserts and fails the test. If ok, uses it for documentation entry.
 	//
 	// Not only validate, you can add an annotation to each values (e.g., what does the header
 	// means?) and it's used for documentation.
