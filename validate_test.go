@@ -403,7 +403,7 @@ func TestAssertFunc(t *testing.T) {
 	var buf bytes.Buffer
 	tFatalf = fprintFatalFunc(&buf)
 	defaultAssertFunc(t, 1, 2, "test-assert")
-	if got, want := buf.String(), "test-assert: got 2(int), want 1(int)"; !strings.Contains(got, want) {
+	if got, want := buf.String(), "test-assert: (-got +want): \n-2\n+1"; !strings.Contains(got, want) {
 		t.Fatalf("expect %q to contain %q", got, want)
 	}
 
