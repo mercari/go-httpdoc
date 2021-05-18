@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"reflect"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/kylelemons/godebug/pretty"
 	"github.com/tenntenn/gpath"
 )
 
@@ -16,8 +16,8 @@ var (
 	defaultUnmarshalFunc = json.Unmarshal
 
 	defaultAssertFunc = func(t *testing.T, expected, actual interface{}, desc string) {
-		if !reflect.DeepEqual(expected, actual) {
-			tFatalf(t, "%s: got %#v(%T), want %#v(%T)", desc, actual, actual, expected, expected)
+		if diff := pretty.Compare(actual, expected); diff != "" {
+			tFatalf(t, "%s: (-got +want): \n%s", desc, diff)
 		}
 	}
 
