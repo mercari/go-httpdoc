@@ -1,8 +1,6 @@
-# go-httpdoc [![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godoc] [![Travis](https://img.shields.io/travis/mercari/go-httpdoc/master.svg?style=flat-square)][travis] [![Codecov](https://img.shields.io/codecov/c/github/mercari/go-httpdoc.svg?style=flat-square)][codecov]
+# go-httpdoc [![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godoc]
 
 [godoc]: http://godoc.org/go.mercari.io/go-httpdoc
-[travis]: https://travis-ci.org/mercari/go-httpdoc
-[codecov]: https://codecov.io/gh/mercari/go-httpdoc
 
 `go-httpdoc` is a Golang package to generate API documentation from [`httptest`](https://golang.org/pkg/net/http/httptest/) test cases.
 
